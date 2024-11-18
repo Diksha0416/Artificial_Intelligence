@@ -2,12 +2,12 @@
 #include <time.h>
 using namespace std;
 
-int m, n;  
-int Count = 0; 
+int rows, cols;  
+int countSolutions = 0; 
 
-void print_board(int **board) {
-    for (int i = 0; i < m; i++) {
-        for (int j = 0; j < n; j++) {
+void printBoard(int **board) {
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
             cout << board[i][j] << " ";
         }
         cout << endl;
@@ -25,7 +25,7 @@ bool canPlace(int **board, int row, int col) {
         int newRow = row + moves[i][0];
         int newCol = col + moves[i][1];
         
-        if (newRow >= 0 && newRow < m && newCol >= 0 && newCol < n) {
+        if (newRow >= 0 && newRow < rows && newCol >= 0 && newCol < cols) {
             if (board[newRow][newCol] == 1) {
                 return false; 
             }
@@ -34,86 +34,63 @@ bool canPlace(int **board, int row, int col) {
     return true;
 }
 
-void Nknights(int **board, int knights_left, int row, int col) {
-    if (knights_left == 0) {
-        Count++;
-        cout << "Board " << Count << ":" << endl;
-        print_board(board);
+void Nknights(int **board, int knightsLeft, int row, int col) {
+    if (knightsLeft == 0) {
+        countSolutions++;
+        cout << "Solution " << countSolutions << ":" << endl;
+        printBoard(board);
         return;
     }
 
-    if (row >= m) return;
+    if (row >= rows) return;
 
-    if (col >= n) {
-        Nknights(board, knights_left, row + 1, 0);
+    if (col >= cols) {
+        Nknights(board, knightsLeft, row + 1, 0);
         return;
     }
 
-    int left_cells = (m * n) - (row * n + col);
-    if (left_cells < knights_left) return;
+    int cellsLeft = (rows * cols) - (row * cols + col);
+    if (cellsLeft < knightsLeft) return;
 
     if (canPlace(board, row, col)) {
         board[row][col] = 1;  
-        Nknights(board, knights_left - 1, row, col + 1);
+        Nknights(board, knightsLeft - 1, row, col + 1);
         board[row][col] = 0;
     }
 
-    if (row >= m) return;
-
-    if (col >= n) {
-        Nknights(board, knights_left, row + 1, 0);
-        return;
-    }
-
-    Nknights(board, knights_left, row, col + 1);
+    Nknights(board, knightsLeft, row, col + 1);
 }
 
 int main() {
-    double time1,time2,totaltime;
+    double startTime, endTime, totalTime;
     cout << "Enter size of board (rows and columns): ";
-    cin >> m >> n;
+    cin >> rows >> cols;
 
-    int **board = new int*[m];
-    for (int i = 0; i < m; i++) {
-        board[i] = new int[n];
+    int **board = new int*[rows];
+    for (int i = 0; i < rows; i++) {
+        board[i] = new int[cols]();
     }
 
-    for (int i = 0; i < m; i++) {
-        for (int j = 0; j < n; j++) {
-            board[i][j] = 0;
-        }
-    }
+    cout << "Enter number of knights: ";
+    int knights;
+    cin >> knights;
 
-    cout << "Number of knights to be placed: ";
-    int K;
-    cin >> K; 
+    startTime = clock();
+    Nknights(board, knights, 0, 0); 
+    endTime = clock();
+    totalTime = (endTime - startTime) / CLOCKS_PER_SEC;
 
-    time1=(double)clock();
-    Nknights(board, K, 0, 0); 
-    time2=(double)clock();
-    totaltime=(time2-time1)/CLOCKS_PER_SEC;
-
-    if (Count == 0) {
+    if (countSolutions == 0) {
         cout << "No solution exists!" << endl;
     } else {
-        cout << "Total solutions found: " << Count << endl;
+        cout << "Total solutions: " << countSolutions << endl;
     }
-    cout<<"Total time taken: "<<totaltime;
+    cout << "Time taken: " << totalTime << " seconds" << endl;
 
-    for (int i = 0; i < m; i++) {
+    for (int i = 0; i < rows; i++) {
         delete[] board[i];
     }
     delete[] board;
 
     return 0;
 }
-
-
-
-
-
-
-
-
-
-
